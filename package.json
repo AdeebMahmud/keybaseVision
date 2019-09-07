@@ -1,0 +1,16 @@
+{
+  "name": "keybasevision",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "keybase-bot": "^3.0.0",
+    "wikiquote": "^0.5.0",
+    "winston": "^3.2.1"
+  }
+}
