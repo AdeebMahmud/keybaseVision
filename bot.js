@@ -3,6 +3,9 @@ const wiki = require("wikijs").default;
 const logger = require("winston");
 const paperkey = require('./creds.json');
 
+const http = require('http');
+const fs = require('fs');
+
 const username = 'keybasevision'
 // Imports the Google Cloud client library
 const vision = require('@google-cloud/vision');
@@ -29,17 +32,38 @@ async function getEmbed(image) {
   return labels;
 }
 
+async function getPage(labels){
+
+    return await wiki().find(labels[0].description);
+
+}
+
 async function getDescription(labels) {
     outputString = "We think it could be: " + labels.map(label => label.description).join(', ');
 
-    const page = await wiki().find(labels[0].description);
+    const page = await getPage(labels);
 
-    const summary = await page.summary()
-    
-    outputString += summary;
+    const summary = await page.summary();
+
+    const shortWiki = summary.slice(0,200) + "...";
+
+    const url = page.raw.fullurl;
+
+    outputString += " | " + url + " | " + shortWiki;
 
     return outputString
 }
+
+async function getImage(labels, channel) {
+    const page = await getPage(labels);
+
+    const file = fs.createWriteStream("wikiMainImage.jpg");
+    const request = http.get((await page.mainImage()).replace('https', 'http'), response => {
+        response.pipe(file);
+        keybaseVision.chat.attach(channel, './wikiMainImage.jpg');
+    });
+}
+
 
 keybaseVision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
   .init(username, paperkey.paperkey, {verbose: false})
@@ -60,8 +84,11 @@ keybaseVision
         const channel = message.channel;
         if (message.content.text.body === "!classify") {
             getEmbed("./current.jpg")
-                .then(labels => getDescription(labels)).then(summary => 
-                    keybaseVision.chat.send(channel, {body: summary}))
+                .then(labels => {
+                    //getImage(labels, channel);
+                    return getDescription(labels);
+                })
+                .then(finalMessage => keybaseVision.chat.send(channel, {body: finalMessage}))
         }
     })
   })
