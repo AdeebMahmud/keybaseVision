@@ -3,8 +3,8 @@ const wiki = require("wikijs").default;
 const logger = require("winston");
 const paperkey = require('./creds.json');
 
-const http = require('http');
-const fs = require('fs');
+//const http = require('http');
+//const fs = require('fs');
 
 const username = 'keybasevision'
 // Imports the Google Cloud client library
@@ -30,6 +30,7 @@ async function getEmbed(image) {
   const labels = result.labelAnnotations;
   logger.info('Labels:');
   return labels;
+  
 }
 
 async function getPage(labels){
@@ -38,6 +39,7 @@ async function getPage(labels){
 
 }
 
+// Gets the description of the image
 async function getDescription(labels) {
     outputString = "We think it could be: " + labels.map(label => label.description).join(', ');
 
@@ -54,6 +56,7 @@ async function getDescription(labels) {
     return outputString
 }
 
+/*
 async function getImage(labels, channel) {
     const page = await getPage(labels);
 
@@ -63,16 +66,16 @@ async function getImage(labels, channel) {
         keybaseVision.chat.attach(channel, './wikiMainImage.jpg');
     });
 }
-
+*/
 
 keybaseVision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
   .init(username, paperkey.paperkey, {verbose: false})
   .then(() => {
-    logger.info(`Your bot is initialized. It is logged in as ${keybaseVision.myInfo().username}`)
+    logger.info(`Your bot is initialized. It is logged in as ${keybaseVision.myInfo().username}`) // Console Information
 
     keybaseVision.chat.watchAllChannelsForNewMessages(message => {
         const channel = message.channel;
-        if(message.content.type === "attachment") {
+        if(message.content.type === "attachment") { // Checks for an uploaded image and downloads
             keybaseVision.chat.download(channel, message.id, "./current.jpg")
                 .catch(error => {
                     console.error(error)
@@ -88,7 +91,7 @@ keybaseVision
                     //getImage(labels, channel);
                     return getDescription(labels);
                 })
-                .then(finalMessage => keybaseVision.chat.send(channel, {body: finalMessage}))
+                .then(finalMessage => keybaseVision.chat.send(channel, {body: finalMessage})) // Image description output
         }
     })
   })
